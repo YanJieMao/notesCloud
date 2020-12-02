@@ -279,3 +279,287 @@ ps:一组变量也可以通过调用一个函数，由函数返回的多个返�
 var f, err = os.Open(name) // os.Open returns a file and an error
 ```
 
+### 3.3.1简短变量声明
+
+在函数内部，以“名字 := 表达式”形式声明变量，变量的类型根据表达式来自动推导。
+
+例如
+
+```go
+anim := gif.GIF{LoopCount: nframes}
+freq := rand.Float64() * 3.0
+t := 0.0
+```
+
+简洁，灵活，简短变量声明被广泛用于大部分的局部变量的声明和初始化。
+
+var形式的声明语句往往是用于需要**显式指定变量类型**的地方
+
+或者因为变量稍后会被重新赋值而初始值**无关紧要**的地方。
+
+```
+i := 100                  // an int
+var boiling float64 = 100 // a float64
+var names []string
+var err error
+var p Point
+```
+
+简短变量声明初始化**一组变量**
+
+```go
+i, j := 0, 1
+```
+
+> 注意： 请记住“:=”是一个变量声明语句，而“=”是一个变量赋值操作。也不要混淆多个变量的声明和元组的多重赋值，后者是将右边各个表达式的值赋值给左边对应位置的各个变量：
+
+```go
+i, j = j, i // 交换 i 和 j 的值 （多重赋值）
+```
+
+简短变量声明语句也可以用函数的返回值来声明和初始化变量
+
+```go
+f, err := os.Open(name)
+if err != nil {
+    return err
+}
+// ...use f...
+f.Close()
+```
+
+ps: 如果有一些已经在相同的词法域声明过了，那么简短变量声明语句对这些已经声明过的变量就只有赋值行为.
+
+简短变量声明语句中必须至少要声明一个新的变量，
+
+```go
+f, err := os.Open(infile)
+// ... 编译不能通过
+f, err := os.Create(outfile) // compile error: no new variables
+// 解决的方法是第二个简短变量声明语句改用普通的多重赋值语句。
+```
+
+ 简短变量声明语句只有对已经在同级词法域声明过的变量才和赋值操作语句等价，如果变量是在外部词法域声明的，那么简短变量声明语句将会在当前词法域重新声明一个新的变量。
+
+### 3.3.2指针
+
+一个变量对应一个保存了变量对应类型值的内存空间。普通变量在声明语句创建时被绑定到一个变量名
+
+一个指针的值是另一个变量的地址。一个指针对应变量在内存中的存储位置。
+
+并不是每一个值都会有一个内存地址，但是对于每一个变量必然有对应的内存地址。
+
+通过指针，我们可以直接读或更新对应变量的值，而不需要知道该变量的名字
+
+**指针->地址** 
+
+“var x int”声明语句声明一个x变量，那么&x表达式（取x变量的内存地址）将产生一个指向该整数变量的指针，指针对应的数据类型是`*int`，指针被称之为“指向int类型的指针”。
+
+```go
+x := 1
+p := &x         // p, 指向int类型的指针
+fmt.Println(*p) // "1"
+*p = 2          // 修改值 x = 2
+fmt.Println(x)  // "2"
+```
+
+任何类型的指针的零值都是nil。指针之间可以相等测试，只有当它们指向同一个变量或全部是nil时才相等。
+
+在Go语言中，返回函数中局部变量的地址也是安全的。
+
+例如
+
+```go
+//调用f函数时创建局部变量v，在局部变量地址被返回之后依然有效，因为指针p依然引用这个变量。
+var p = f()
+
+func f() *int {
+    v := 1
+    return &v
+}
+```
+
+注意：*p++ // 非常重要：只是增加p指向的变量的值，并不改变p指针！！！
+
+指针是实现标准库中**flag包**的关键技术，它使用命令行参数来设置对应变量的值，而这些对应命令行标志参数的变量可能会零散分布在整个程序中。(?什么是flag包)
+
+```go
+// Echo4 prints its command-line arguments.
+package main
+
+import (
+    "flag"
+    "fmt"
+    "strings"
+)
+
+var n = flag.Bool("n", false, "omit trailing newline")
+var sep = flag.String("s", " ", "separator")
+
+func main() {
+    flag.Parse()
+    fmt.Print(strings.Join(flag.Args(), *sep))//sep和n变量分别是指向对应命令行标志参数变量的指针，
+    if !*n {									//因此必须用*sep和*n形式的指针语法间接引用它们
+        fmt.Println()
+    }
+}
+```
+
+加h参数运行结果
+
+```bash
+PS C:\Users\Troila\go\base\ch2\echo4> go run echo4.go -h
+Usage of C:\Users\Troila\AppData\Local\Temp\go-build826247146\b001\exe\echo4.exe:
+  -n    omit trailing newline
+  -s string
+        separator (default " ")
+```
+
+测试用例
+
+```
+$ go build gopl.io/ch2/echo4
+$ ./echo4 a bc def
+a bc def
+$ ./echo4 -s / a bc def
+a/bc/def
+$ ./echo4 -n a bc def
+a bc def$
+$ ./echo4 -help
+Usage of ./echo4:
+  -n    omit trailing newline
+  -s string
+        separator (default " ")
+```
+
+### 3.2.3new函数
+
+另一个创建变量的方法是调用内建的new函数。
+
+表达式new(T)将创建一个T类型的匿名变量，初始化为T类型的零值，然后返回变量地址，返回的指针类型为`*T`
+
+```go
+p := new(int)   // p, *int 类型, 指向匿名的 int 变量
+fmt.Println(*p) // "0"
+*p = 2          // 设置 int 匿名变量的值为 2
+fmt.Println(*p) // "2"
+```
+
+new创建变量和声明式创建变量没有什么不同（除了不需要名字），这不是一种新的概念，而是一种语法糖
+
+```go
+func newInt() *int {
+    return new(int)
+}
+
+func newInt() *int {
+    var dummy int
+    return &dummy
+}
+```
+
+每次调用new函数都是返回一个新的变量的地址，因此下面两个地址是不同的：
+
+```go
+p := new(int)
+q := new(int)
+fmt.Print(q == p)//false
+```
+
+new只是一个预定于的函数，并不是一个关键字，在其他函数中我们可以定义 new int ,把new定义为其他类型
+
+### 3.3.4变量的生命周期
+
+- 包一级：生命周期和整个程序的运行周期是一致的
+- 局部变量： 从创建一个新变量的声明语句开始，直到该变量不再引用，变量存储空间可能会被回收。
+- 函数的参数变量和返回值变量都是局部变量。它们在函数每次被调用的时候创建。
+
+Go自动垃圾收集器何时回收变量？
+
+基本的实现思路是，从每个包级的变量和每个当前运行函数的每一个局部变量开始，通过指针或引用的访问路径遍历，是否可以找到该变量。如果不存在这样的访问路径，那么说明该变量是不可达的，也就是说它是否存在并不会影响程序后续的计算结果。
+
+```go
+var global *int
+
+func f() {
+    var x int
+    x = 1
+    global = &x //变量x在函数结束后不可以回收,global引用
+}
+
+func g() {
+    y := new(int)
+    *y = 1  //y可以回收
+}
+```
+
+## 3.4赋值
+
+
+
+```Go
+x = 1                       // 命名变量的赋值
+*p = true                   // 通过指针间接赋值
+person.name = "bob"         // 结构体字段赋值
+count[x] = count[x] * scale // 数组、slice或map的元素赋值
+count[x] *= scale //简洁形式
+
+```
+
+赋值支持++自增和--自减语句
+
+```go
+v := 1
+v++    // 等价方式 v = v + 1；v 变成 2
+v--    // 等价方式 v = v - 1；v 变成 1
+```
+
+ps :需要注意 x++ 是语句不是表达式，x = x++是错误的:x:
+
+### 3.4.1元组赋值
+
+元组赋值是另一种形式的赋值语句，它允许同时更新多个变量的值。
+
+赋值之前有变表达式先计算，然后再进行赋值
+
+```go
+x, y = y, x
+
+a[i], a[j] = a[j], a[i]
+```
+
+元组赋值使一系列琐碎赋值更紧凑，特别是for循环。
+
+有些表达式会产生多个值，比如调用一个有多个返回值的函数。当这样一个函数调用出现在元组赋值右边的表达式中时（右边不能再有其它表达式），左边变量的数目必须和右边一致。
+
+```
+f, err = os.Open("foo.txt") // function call returns two values
+```
+
+```
+v, ok = m[key]             // map lookup
+v, ok = x.(T)              // type assertion
+v, ok = <-ch               // channel receive
+```
+
+```
+v = m[key]                // map查找，失败时返回零值
+v = x.(T)                 // type断言，失败时panic异常
+v = <-ch                  // 管道接收，失败时返回零值（阻塞不算是失败）
+
+_, ok = m[key]            // map返回2个值
+_, ok = mm[""], false     // map返回1个值
+_ = mm[""]                // map返回1个值
+```
+
+和变量声明一样，我们可以用下划线空白标识符`_`来丢弃不需要的值。
+
+```
+_, err = io.Copy(dst, src) // 丢弃字节数
+_, ok = x.(T)              // 只检测类型，忽略具体值
+```
+
+### 2.4.2可赋值性
+
+
+
