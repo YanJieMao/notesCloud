@@ -1,0 +1,39 @@
+FROM golang:1.13 as builder
+
+RUN mkdir -p /microapi/
+WORKDIR /microapi
+
+ENV GO111MODULE=on
+ENV GOPROXY="http://172.26.1.9:5000"
+ENV GOSUMDB="off"
+
+
+ENV OS=linux
+ENV ARCH=amd64
+ARG GIT_SHA
+ARG VERSION
+ARG DATE
+
+COPY . .
+
+RUN go mod download
+
+RUN CGO_ENABLED=0 GOOS=${OS} GOARCH=${ARCH} go build -ldflags "-s -w \
+    -X paas.gitlab.com/paas/microapi/pkg/version.commitSHA=${GIT_SHA} \
+    -X paas.gitlab.com/paas/microapi/pkg/version.latestVersion=${VERSION} \
+    -X paas.gitlab.com/paas/microapi/pkg/version.date=${DATE}" \
+    -a -o bin/microAPI cmd/microAPI/main.go
+
+
+
+FROM alpine:3.12
+
+
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
+    && apk --no-cache --update add curl ca-certificates
+
+WORKDIR /
+
+COPY --from=builder /microapi/bin/microAPI .
+
+ENTRYPOINT ["./microAPI"]

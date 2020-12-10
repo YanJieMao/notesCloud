@@ -12,6 +12,10 @@
 
 1.添加阿里源
 
+```
+sudo yum install -y yum-utils//添加包管理工具
+```
+
 ```bash
 yum-config-manager --add-repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
 
