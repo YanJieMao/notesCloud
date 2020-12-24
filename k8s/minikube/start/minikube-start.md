@@ -94,7 +94,7 @@ minikube stop
 设置内存
 
 ```shell
-minikube config set memory 16384
+minikube config set memory 4096 //4g内存
 ```
 
 浏览k8s组件
