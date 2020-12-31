@@ -154,9 +154,9 @@ iptables代理模式
 
 > k8s插件
 
-它们不是必需的；
+不是必要的
 
-这些插件用于启用Kubemetes服务的DNS查询， 通过单个外部IP地址暴露多个HTTP服、Kubemetes web仪表板等特性。
+这些插件有用于启用Kubemetes服务的DNS查询， 通过单个外部IP地址暴露多个HTTP服、Kubemetes web仪表板等特性。
 
 **DNS服务器***
 
