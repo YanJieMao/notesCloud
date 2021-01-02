@@ -6,3 +6,9 @@
 gsettings set com.deepin.xsettings scale-factor 1.35
 ```
 
+2.修改grub
+
+```
+vim /etc/default/grub
+```
+
