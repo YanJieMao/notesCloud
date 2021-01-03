@@ -4,6 +4,12 @@
 
 Prometheus 是一个开源的服务监控系统和时间序列数据库。
 
+```
+Prometheus是一套开源的监控&报警&时间序列数据库的组合,起始是由SoundCloud公司开发的。成立于2012年，之后许多公司和组织接受和采用prometheus,他们便将它独立成开源项目，并且有公司来运作.该项目有非常活跃的社区和开发人员，目前是独立的开源项目，任何公司都可以使用它，2016年，Prometheus加入了云计算基金会，成为kubernetes之后的第二个托管项目.google SRE的书内也曾提到跟他们BorgMon监控系统相似的实现是Prometheus。现在最常见的Kubernetes容器管理系统中，通常会搭配Prometheus进行监控。
+```
+
+
+
 官网：https://prometheus.io/
 
 ![普罗米修斯建筑](img/architecture.png)
@@ -26,8 +32,6 @@ Prometheus 的四种数据类型分别是：Counter、Gauge、Histogram和Summar
 ### Counter 
 
 Counter数据类型的特点：
-
-
 
 - Counter 用于累计值，例如 记录 请求次数、任务完成数、错误发生次数。
 - 一直增加，不会减少。
