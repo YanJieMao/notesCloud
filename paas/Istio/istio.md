@@ -1,6 +1,6 @@
 # istio
 
-# istio简介
+# 1.istio简介
 
 Istio 提供一种简单的方式来为已部署的服务建立网络，该网络具有负载均衡、服务间认证、监控等功能，而不需要对服务的代码做任何改动。
 
@@ -212,3 +212,8 @@ spec:
 
 [
   ](https://skyao.io/learning-istio/crd/network/sidecar.html)
+
+# 2.流量管理
+
+## 2.1虚拟服务
+
