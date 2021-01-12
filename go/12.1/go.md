@@ -62,7 +62,7 @@ go env -w GOPATH=我们自己的工作区路径
 
 ```bash
 $ go env -w GO111MODULE=on
-$ go env -w GOPROXY=https://goproxy.cn,direct
+$ go env -w GOPROXY=https://goproxy.cn,http://172.26.1.9:5000,direct
 ```
 
 之后就可以打开VsCode
