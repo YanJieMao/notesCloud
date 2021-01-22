@@ -161,3 +161,5 @@ iptables代理模式
 **DNS服务器***
 
 **Ingress控制器**
+
+![what-happens-when-k8s](img/what-happens-when-k8s.svg)
