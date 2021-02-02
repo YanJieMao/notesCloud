@@ -76,3 +76,5 @@ $ go env -w GOPROXY=https://goproxy.cn,http://172.26.1.9:5000,direct
 ### 4.新建hello.go文件，并用vscode打开。
 
 在安装了Go插件后的VsCode，现在打开go文件后，会自动安装我们自己的必要的环境依赖
+
+支持多条件查询微服务应用
