@@ -1,0 +1,3 @@
+
+输出模板到文件
+helm template ./ -f values.yaml --output-dir manifests/test/
