@@ -1,51 +1,64 @@
-## k3s简介
+# redis
 
-K3S是一个完全符合Kubernetes的发行版。可以使用单一二进制包安装（不到 100MB），安装简单，内存只有一半，最低0.5G内存就能运行。
+## redis初探
 
-## 安装
+### 简介
 
-使用官方脚本安装K3S，同时会安装其他实用程序，包括`kubectl`、`crictl`、`ctr`、`k3s-killall.sh`和`k3s-uninstall.sh`；
+Redis 是完全开源的，遵守 BSD 协议，是一个高性能的 key-value 数据库。
 
-```bash
-curl -sfL http://rancher-mirror.cnrancher.com/k3s/k3s-install.sh | INSTALL_K3S_MIRROR=cn sh -
+Redis 与其他 key - value 缓存产品有以下三个特点：
+
+- Redis支持数据的持久化，可以将内存中的数据保存在磁盘中，重启的时候可以再次加载进行使用。
+- Redis不仅仅支持简单的key-value类型的数据，同时还提供list，set，zset，hash等数据结构的存储。
+- Redis支持数据的备份，即master-slave模式的数据备份。
+
+**优势**
+
+- 性能极高 – Redis能读的速度是110000次/s,写的速度是81000次/s 。
+- 丰富的数据类型 – Redis支持二进制案例的 Strings, Lists, Hashes, Sets 及 Ordered Sets 数据类型操作。
+- 原子 – Redis的所有操作都是原子性的，意思就是要么成功执行要么失败完全不执行。单个操作是原子性的。多个操作也支持事务，即原子性，通过MULTI和EXEC指令包起来。
+- 丰富的特性 – Redis还支持 publish/subscribe, 通知, key 过期等等特性。
+
+**与其他kv存储的不同**
+
+- Redis有着更为复杂的数据结构并且提供对他们的原子性操作，这是一个不同于其他数据库的进化路径。Redis的数据类型都是基于基本数据结构的同时对程序员透明，无需进行额外的抽象。
+- Redis运行在内存中但是可以持久化到磁盘，所以在对不同数据集进行高速读写时需要权衡内存，因为数据量不能大于硬件内存。在内存数据库方面的另一个优点是，相比在磁盘上相同的复杂的数据结构，在内存中操作起来非常简单，这样Redis可以做很多内部复杂性很强的事情。同时，在磁盘格式方面他们是紧凑的以追加的方式产生的，因为他们并不需要进行随机访问。
+
+### 安装
+
+#### Ubuntu apt 命令安装
+
+在 Ubuntu 系统安装 Redis 可以使用以下命令:
+
+```
+# sudo apt update
+# sudo apt install redis-server
 ```
 
-安装完成后会有下列提示信息
-
-```bash
-Complete!
-[INFO]  Skipping /usr/local/bin/kubectl symlink to k3s, command exists in PATH at /usr/bin/kubectl
-[INFO]  Skipping /usr/local/bin/crictl symlink to k3s, command exists in PATH at /usr/bin/crictl
-[INFO]  Skipping /usr/local/bin/ctr symlink to k3s, command exists in PATH at /usr/bin/ctr
-[INFO]  Creating killall script /usr/local/bin/k3s-killall.sh
-[INFO]  Creating uninstall script /usr/local/bin/k3s-uninstall.sh
-[INFO]  env: Creating environment file /etc/systemd/system/k3s.service.env
-[INFO]  systemd: Creating service file /etc/systemd/system/k3s.service
-[INFO]  systemd: Enabling k3s unit
-[INFO]  systemd: Starting k3s
+启动 Redis
 
 ```
-
-查看一下运行状态
-
-```bash
-[root@dev-intern-1 ~]# systemctl status k3s
-● k3s.service - Lightweight Kubernetes
-   Loaded: loaded (/etc/systemd/system/k3s.service; enabled; vendor preset: disabled)
-   Active: active (running) since Fri 2021-03-26 08:59:18 CST; 4min 17s ago
-     Docs: https://k3s.io
-  Process: 302068 ExecStartPre=/sbin/modprobe overlay (code=exited, status=0/SUCCESS)
-  Process: 302059 ExecStartPre=/sbin/modprobe br_netfilter (code=exited, status=0/SUCCESS)
- Main PID: 302071 (k3s-server)
-    Tasks: 100
-   Memory: 1.0G
-   CGroup: /system.slice/k3s.service
-           ├─302071 /usr/local/bin/k3s server
-           ├─302196 containerd
-           ├─302970 /var/lib/rancher/k3s/data/a6857be08414815b83ca6b960373efd98879a0b286fb24cb62b1c5fdbf3a8cb5/bin/containerd-shim-runc...
-           ├─303077 /var/lib/rancher/k3s/data/a6857be08414815b83ca6b960373efd98879a0b286fb24cb62b1c5fdbf3a8cb5/bin/containerd-shim-runc...
-           ├─303089 /var/lib/rancher/k3s/data/a6857be08414815b83ca6b960373efd98879a0b286fb24cb62b1c5fdbf3a8cb5/bin/containerd-shim-runc...
-           ├─304279 /var/lib/rancher/k3s/data/a6857be08414815b83ca6b960373efd98879a0b286fb24cb62b1c5fdbf3a8cb5/bin/containerd-shim-runc...
-           └─304347 /var/lib/rancher/k3s/data/a6857be08414815b83ca6b960373efd98879a0b286fb24cb62b1c5fdbf3a8cb5/bin/containerd-shim-runc...
+# redis-server
 ```
+
+查看 redis 是否启动？
+
+```
+# redis-cli
+```
+
+以上命令将打开以下终端：
+
+```
+redis 127.0.0.1:6379>
+```
+
+127.0.0.1 是本机 IP ，6379 是 redis 服务端口。现在我们输入 PING 命令。
+
+```
+redis 127.0.0.1:6379> ping
+PONG
+```
+
+以上说明我们已经成功安装了redis。
 
