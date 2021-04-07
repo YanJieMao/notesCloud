@@ -1,0 +1,2 @@
+删除所有镜像
+docker rmi -f $(docker images -qa)
